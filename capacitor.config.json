@@ -1,0 +1,9 @@
+{
+  "appId": "com.vault.notes",
+  "appName": "Vault",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}

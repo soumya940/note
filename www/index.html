@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Vault — Notes & Prompts</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'sans-serif'],
+                        mono: ['"SF Mono"', '"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        apple: {
+                            bgLight: '#F5F5F7',
+                            cardLight: '#FFFFFF',
+                            textLight: '#1D1D1F',
+                            subLight: '#86868B',
+                            bgDark: '#000000',
+                            cardDark: '#1C1C1E',
+                            elevatedDark: '#2C2C2E',
+                            textDark: '#F5F5F7',
+                            subDark: '#98989D',
+                            blue: '#0071E3',
+                            blueDark: '#0A84FF',
+                            red: '#FF3B30',
+                            green: '#34C759'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Apple HIG Aesthetics & Smooth Transitions */
+        :root {
+            --spring-easing: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.35s var(--spring-easing), color 0.35s var(--spring-easing);
+            overflow-x: hidden;
+        }
+
+        /* Frosted Glassmorphism */
+        .apple-glass {
+            backdrop-filter: saturate(180%) blur(24px);
+            -webkit-backdrop-filter: saturate(180%) blur(24px);
+        }
+
+        /* Hide Scrollbars for Category Pills */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Card & Button Spring Animations */
+        .spring-card {
+            transition: transform 0.35s var(--spring-easing), box-shadow 0.35s var(--spring-easing), border-color 0.25s ease;
+        }
+        .spring-card:hover {
+            transform: translateY(-2px);
+        }
+        .spring-card:active {
+            transform: scale(0.985);
+        }
+
+        .spring-btn {
+            transition: transform 0.2s var(--spring-easing), opacity 0.2s ease, background-color 0.2s ease;
+        }
+        .spring-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* Modal Transitions */
+        .modal-backdrop {
+            transition: opacity 0.3s var(--spring-easing);
+        }
+        .modal-sheet {
+            transition: transform 0.4s var(--spring-easing), opacity 0.3s var(--spring-easing);
+        }
+
+        /* Line Clamp Utilities */
+        .line-clamp-4 {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Custom Subtle Scrollbar for Modals */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(134, 134, 139, 0.3);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(134, 134, 139, 0.5);
+        }
+
+        /* Options bottom sheet */
+        .sheet-root{visibility:hidden;pointer-events:none;transition:visibility 0s .4s}
+        .sheet-root.open{visibility:visible;pointer-events:auto;transition-delay:0s}
+        .sheet-backdrop{opacity:0;transition:opacity .3s ease}
+        .sheet-root.open .sheet-backdrop{opacity:1}
+        .sheet-panel{transform:translateY(100%);transition:transform .4s var(--spring-easing);max-height:80vh;overflow-y:auto;overscroll-behavior:contain}
+        .sheet-root.open .sheet-panel{transform:translateY(0)}
+        .sheet-root.expanded .sheet-panel{max-height:94vh}
+        .opt-row{display:flex;align-items:center;gap:.75rem;width:100%;padding:.8rem 1rem;border-radius:1rem;background:#fff;font-size:15px;font-weight:500;text-align:left;transition:transform .2s var(--spring-easing)}
+        .dark .opt-row{background:#2C2C2E}
+        button.opt-row:active{transform:scale(.98)}
+        .opt-ico{width:2rem;height:2rem;border-radius:.65rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .opt-sub{margin-left:auto;font-size:12px;color:#86868B;font-weight:400}
+        .seg{display:flex;padding:3px;border-radius:9999px;background:rgba(0,0,0,.06);margin-left:auto;font-size:12px;font-weight:600}
+        .dark .seg{background:rgba(255,255,255,.1)}
+        .seg button{padding:.35rem .75rem;border-radius:9999px;color:#86868B;transition:all .2s ease}
+        .seg button.seg-on{background:#fff;color:#1D1D1F;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+        .dark .seg button.seg-on{background:rgba(255,255,255,.22);color:#fff;box-shadow:none}
+        /* Image viewer buttons */
+        .lb-btn{width:2.5rem;height:2.5rem;border-radius:9999px;background:rgba(255,255,255,.15);color:#fff;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:1.4rem;line-height:1;transition:opacity .2s ease}
+        .lb-btn:disabled{opacity:.25;pointer-events:none}
+        /* New note button */
+        .fab{transition:transform .25s var(--spring-easing), box-shadow .25s ease}
+        .fab:hover{transform:translateY(-2px)}
+        .fab:active{transform:scale(.96)}
+        .copy-link-btn{-webkit-user-select:none;user-select:none}
+    </style>
+</head>
+<body class="bg-apple-bgLight dark:bg-apple-bgDark text-apple-textLight dark:text-apple-textDark min-h-screen pb-[calc(7.5rem+env(safe-area-inset-bottom))] selection:bg-apple-blue selection:text-white">
+
+    <!-- Sticky Frosted Top Header -->
+    <header class="sticky top-0 z-30 pt-[env(safe-area-inset-top)] apple-glass bg-white/75 dark:bg-black/75 border-b border-black/[0.06] dark:border-white/[0.09] transition-colors">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-4 pb-3">
+            
+            <!-- Top Bar: Brand + Actions -->
+            <div class="flex items-center justify-between gap-2 mb-3.5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-apple-blue to-blue-400 dark:from-apple-blueDark dark:to-blue-400 flex items-center justify-center text-white shadow-sm shadow-blue-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight leading-none">Vault</h1>
+                        <p id="notesCounter" class="text-[11px] font-medium text-apple-subLight dark:text-apple-subDark mt-0.5">0 items</p>
+                    </div>
+                </div>
+
+                <!-- Options (three-dot) -->
+                <button id="optionsBtn" onclick="openOptions()" aria-label="Options" aria-haspopup="dialog" class="spring-btn w-10 h-10 rounded-full flex items-center justify-center bg-black/[0.06] dark:bg-white/[0.1] hover:bg-black/[0.1] dark:hover:bg-white/[0.16]">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>
+                </button>
+                <input type="file" id="importFileInput" accept=".json,application/json" class="hidden" onchange="handleImportFile(event)">
+            </div>
+
+            <!-- iOS Spotlight Style Search Input -->
+            <div class="relative mb-3">
+                <svg class="w-4 h-4 text-apple-subLight dark:text-apple-subDark absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    oninput="handleSearch(this.value)"
+                    placeholder="Search headings, prompts, links, or content..." 
+                    class="w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm bg-black/[0.05] dark:bg-white/[0.09] placeholder-apple-subLight dark:placeholder-apple-subDark focus:outline-none focus:ring-2 focus:ring-apple-blue dark:focus:ring-apple-blueDark transition-all"
+                >
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black/20 dark:bg-white/20 flex items-center justify-center text-white text-xs">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Horizontal Scrollable Category Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5" id="categoryPillsContainer">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-5">
+        <!-- Notes Grid -->
+        <div id="notesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Dynamically populated note cards -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center text-center py-20 px-4">
+            <div class="w-16 h-16 rounded-3xl bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center mb-4 text-apple-subLight dark:text-apple-subDark">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold tracking-tight mb-1">No notes found</h3>
+            <p class="text-sm text-apple-subLight dark:text-apple-subDark max-w-xs mb-5">Create a new note, prompt, or link, or adjust your active category and search filter.</p>
+            <button onclick="openNoteEditor()" class="spring-btn px-5 py-2.5 rounded-full bg-apple-blue dark:bg-apple-blueDark text-white text-sm font-semibold shadow-md shadow-blue-500/20">
+                + New Note
+            </button>
+        </div>
+    </main>
+
+    <!-- Floating New Note pill (lower center) -->
+    <div class="fixed inset-x-0 z-20 flex justify-center pointer-events-none px-4" style="bottom:calc(1.25rem + env(safe-area-inset-bottom))">
+        <button onclick="openNoteEditor()" aria-label="New note" class="fab pointer-events-auto bg-apple-blue dark:bg-white text-white dark:text-black px-6 py-3.5 rounded-full flex items-center gap-2 font-semibold text-sm shadow-[0_8px_26px_rgba(0,113,227,0.5)] dark:shadow-[0_6px_26px_rgba(255,255,255,0.28)]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            <span>New note</span>
+        </button>
+    </div>
+
+    <!-- ==========================================
+         READER MODAL (Full Clean View for Notes)
+         ========================================== -->
+    <div id="readerModal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center">
+        <!-- Backdrop -->
+        <div onclick="closeReaderModal()" class="modal-backdrop absolute inset-0 bg-black/40 dark:bg-black/65 backdrop-blur-sm"></div>
+        
+        <!-- Sheet / Dialog -->
+        <div class="modal-sheet relative w-full sm:max-w-2xl max-h-[90vh] bg-apple-cardLight dark:bg-apple-cardDark rounded-t-3xl sm:rounded-3xl shadow-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col overflow-hidden z-10">
+            <!-- Mobile Grab Handle -->
+            <div class="w-10 h-1 bg-black/15 dark:bg-white/20 rounded-full mx-auto mt-2.5 sm:hidden"></div>
+
+            <!-- Modal Header -->
+            <div class="px-5 sm:px-7 pt-4 pb-3.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="readerCategoryBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-apple-blue/10 text-apple-blue dark:bg-apple-blueDark/20 dark:text-apple-blueDark">Category</span>
+                    <span id="readerTimestamp" class="text-xs text-apple-subLight dark:text-apple-subDark">Just now</span>
+                </div>
+                <button onclick="closeReaderModal()" class="spring-btn w-8 h-8 rounded-full bg-black/[0.06] dark:bg-white/[0.1] flex items-center justify-center text-apple-subLight dark:text-apple-subDark hover:text-black dark:hover:text-white">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Scrollable Reader Body -->
+            <div class="p-5 sm:p-7 overflow-y-auto space-y-5 flex-1">
+                <h2 id="readerTitle" class="text-2xl sm:text-3xl font-bold tracking-tight leading-snug select-all"></h2>
+                
+                <!-- Formatted Readable Content -->
+                <div id="readerBody" class="text-[15px] sm:text-base leading-relaxed whitespace-pre-wrap break-words font-normal text-apple-textLight/90 dark:text-apple-textDark/90 space-y-2"></div>
+
+                <!-- Attached Images Gallery -->
+                <div id="readerImagesContainer" class="hidden pt-2">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-apple-subLight dark:text-apple-subDark mb-2.5">Attached Images</p>
+                    <div id="readerImagesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+
+            <!-- Reader Action Footer -->
+            <div class="px-5 sm:px-7 py-3.5 bg-apple-bgLight/70 dark:bg-apple-elevatedDark/60 border-t border-black/[0.06] dark:border-white/[0.08] flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <button id="readerCopyBtn" class="spring-btn px-4 py-2 rounded-full bg-apple-blue dark:bg-apple-blueDark text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Copy Content</span>
+                    </button>
+                    <button id="readerExportSingleBtn" class="spring-btn px-3.5 py-2 rounded-full bg-black/[0.06] dark:bg-white/[0.1] text-xs font-semibold flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        <span>Export Item</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="readerEditBtn" class="spring-btn px-3.5 py-2 rounded-full bg-black/[0.06] dark:bg-white/[0.1] text-xs font-semibold">
+                        Edit
+                    </button>
+                    <button id="readerDeleteBtn" class="spring-btn px-3.5 py-2 rounded-full bg-apple-red/10 text-apple-red text-xs font-semibold">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CREATE / EDIT NOTE MODAL
+         ========================================== -->
+    <div id="editorModal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center">
+        <div onclick="closeNoteEditor()" class="modal-backdrop absolute inset-0 bg-black/40 dark:bg-black/65 backdrop-blur-sm"></div>
+        
+        <div class="modal-sheet relative w-full sm:max-w-xl max-h-[92vh] bg-apple-cardLight dark:bg-apple-cardDark rounded-t-3xl sm:rounded-3xl shadow-2xl border border-black/[0.08] dark:border-white/[0.12] flex flex-col overflow-hidden z-10">
+            <div class="w-10 h-1 bg-black/15 dark:bg-white/20 rounded-full mx-auto mt-2.5 sm:hidden"></div>
+
+            <!-- Editor Header -->
+            <div class="px-5 sm:px-6 pt-4 pb-3 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                <button onclick="closeNoteEditor()" class="text-sm font-medium text-apple-subLight dark:text-apple-subDark hover:text-black dark:hover:text-white">Cancel</button>
+                <h3 id="editorModalTitle" class="text-base font-semibold">New Note</h3>
+                <button onclick="saveNoteFromEditor()" class="text-sm font-semibold text-apple-blue dark:text-apple-blueDark hover:opacity-80">Save</button>
+            </div>
+
+            <!-- Editor Form -->
+            <div class="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1">
+                <input type="hidden" id="editNoteId">
+
+                <!-- Heading Input -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-apple-subLight dark:text-apple-subDark mb-1.5">Heading</label>
+                    <input 
+                        type="text" 
+                        id="noteTitleInput" 
+                        placeholder="e.g., System Architect Prompt, API Docs Link..." 
+                        class="w-full px-4 py-3 rounded-2xl text-base font-semibold bg-apple-bgLight dark:bg-apple-elevatedDark focus:outline-none focus:ring-2 focus:ring-apple-blue dark:focus:ring-apple-blueDark"
+                    >
+                </div>
+
+                <!-- Category Selector + Quick Add Category -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-apple-subLight dark:text-apple-subDark">Category</label>
+                        <button type="button" onclick="toggleInlineCategoryCreator()" class="text-xs font-semibold text-apple-blue dark:text-apple-blueDark">+ Add Category</button>
+                    </div>
+                    <select id="noteCategorySelect" class="w-full px-4 py-3 rounded-2xl text-sm font-medium bg-apple-bgLight dark:bg-apple-elevatedDark focus:outline-none focus:ring-2 focus:ring-apple-blue dark:focus:ring-apple-blueDark">
+                        <!-- Dynamically populated -->
+                    </select>
+
+                    <!-- Inline New Category Creator -->
+                    <div id="inlineCategoryBox" class="hidden mt-2 flex items-center gap-2">
+                        <input 
+                            type="text" 
+                            id="inlineNewCategoryInput" 
+                            placeholder="New category name..." 
+                            class="flex-1 px-3.5 py-2 rounded-xl text-sm bg-apple-bgLight dark:bg-apple-elevatedDark focus:outline-none focus:ring-2 focus:ring-apple-blue"
+                        >
+                        <button type="button" onclick="addInlineCategory()" class="px-4 py-2 rounded-xl bg-apple-blue text-white text-xs font-semibold">Add</button>
+                    </div>
+                </div>
+
+                <!-- Content / Prompt / Link Textarea -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-apple-subLight dark:text-apple-subDark">Note / Prompt / Links</label>
+                        <span class="text-[11px] text-apple-subLight dark:text-apple-subDark">URLs auto-link automatically</span>
+                    </div>
+                    <textarea 
+                        id="noteContentInput" 
+                        rows="7" 
+                        placeholder="Write or paste your prompt, important links, or structured notes here..." 
+                        class="w-full px-4 py-3 rounded-2xl text-sm leading-relaxed bg-apple-bgLight dark:bg-apple-elevatedDark focus:outline-none focus:ring-2 focus:ring-apple-blue dark:focus:ring-apple-blueDark resize-y font-sans"
+                    ></textarea>
+                </div>
+
+                <!-- Image Attachment Uploader -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-apple-subLight dark:text-apple-subDark">Images</label>
+                        <span id="editorQualityHint" class="text-[11px] text-apple-subLight dark:text-apple-subDark"></span>
+                    </div>
+                    
+                    <label class="spring-btn cursor-pointer flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl border border-dashed border-black/20 dark:border-white/20 hover:border-apple-blue dark:hover:border-apple-blueDark bg-apple-bgLight/50 dark:bg-apple-elevatedDark/40 text-xs font-semibold text-apple-subLight dark:text-apple-subDark">
+                        <svg class="w-4 h-4 text-apple-blue dark:text-apple-blueDark" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Attach Images</span>
+                        <input type="file" id="noteImageInput" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
+                    </label>
+
+                    <!-- Preview Thumbnails in Editor -->
+                    <div id="editorImagesPreview" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 mt-3"></div>
+                </div>
+            </div>
+
+            <!-- Bottom Save Button -->
+            <div class="p-4 bg-apple-bgLight/70 dark:bg-apple-elevatedDark/60 border-t border-black/[0.06] dark:border-white/[0.08]">
+                <button onclick="saveNoteFromEditor()" class="spring-btn w-full py-3 rounded-2xl bg-apple-blue dark:bg-apple-blueDark text-white font-semibold text-sm shadow-md shadow-blue-500/20">
+                    Save to Vault
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CATEGORY MANAGER MODAL
+         ========================================== -->
+    <div id="categoryModal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center">
+        <div onclick="closeCategoryModal()" class="modal-backdrop absolute inset-0 bg-black/40 dark:bg-black/65 backdrop-blur-sm"></div>
+        
+        <div class="modal-sheet relative w-full sm:max-w-md bg-apple-cardLight dark:bg-apple-cardDark rounded-t-3xl sm:rounded-3xl shadow-2xl border border-black/[0.08] dark:border-white/[0.12] overflow-hidden z-10">
+            <div class="w-10 h-1 bg-black/15 dark:bg-white/20 rounded-full mx-auto mt-2.5 sm:hidden"></div>
+            
+            <div class="px-5 pt-4 pb-3 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between">
+                <h3 class="text-base font-semibold">Manage Categories</h3>
+                <button onclick="closeCategoryModal()" class="spring-btn w-7 h-7 rounded-full bg-black/[0.06] dark:bg-white/[0.1] flex items-center justify-center text-xs">✕</button>
+            </div>
+
+            <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                <!-- Add New Category Form -->
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        id="newCategoryModalInput" 
+                        placeholder="Create custom category..." 
+                        onkeydown="if(event.key==='Enter') createCategoryFromModal()"
+                        class="flex-1 px-4 py-2.5 rounded-2xl text-sm bg-apple-bgLight dark:bg-apple-elevatedDark focus:outline-none focus:ring-2 focus:ring-apple-blue"
+                    >
+                    <button onclick="createCategoryFromModal()" class="spring-btn px-4 py-2.5 rounded-2xl bg-apple-blue dark:bg-apple-blueDark text-white text-xs font-semibold">
+                        Add
+                    </button>
+                </div>
+
+                <!-- Categories List -->
+                <div id="categoryManagerList" class="space-y-2">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CONFIRMATION DIALOG (No native alert/confirm)
+         ========================================== -->
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4">
+        <div onclick="closeConfirmModal()" class="absolute inset-0 bg-black/45 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-xs apple-glass bg-white/90 dark:bg-apple-cardDark/95 rounded-3xl shadow-2xl border border-black/10 dark:border-white/15 overflow-hidden z-10 text-center">
+            <div class="p-6">
+                <h4 id="confirmTitle" class="text-base font-bold mb-1.5">Delete Note?</h4>
+                <p id="confirmMessage" class="text-xs text-apple-subLight dark:text-apple-subDark leading-relaxed">This action cannot be undone.</p>
+            </div>
+            <div class="grid grid-cols-2 border-t border-black/[0.08] dark:border-white/[0.1]">
+                <button onclick="closeConfirmModal()" class="py-3.5 text-sm font-medium text-apple-blue dark:text-apple-blueDark border-r border-black/[0.08] dark:border-white/[0.1] hover:bg-black/5 dark:hover:bg-white/5">
+                    Cancel
+                </button>
+                <button id="confirmActionBtn" class="py-3.5 text-sm font-semibold text-apple-red hover:bg-black/5 dark:hover:bg-white/5">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         FULLSCREEN LIGHTBOX FOR IMAGES
+         ========================================== -->
+    <div id="lightboxModal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md select-none" role="dialog" aria-modal="true" aria-label="Image viewer">
+        <div id="lbStage" class="absolute inset-0 flex items-center justify-center overflow-hidden" style="touch-action:none">
+            <img id="lightboxImage" src="" alt="Full attachment" draggable="false" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" style="transform-origin:center;will-change:transform;-webkit-user-drag:none">
+        </div>
+        <button onclick="closeLightbox()" aria-label="Close image" class="lb-btn absolute right-4" style="top:calc(1rem + env(safe-area-inset-top))">✕</button>
+        <div id="lbCounter" class="absolute left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-semibold" style="top:calc(1.35rem + env(safe-area-inset-top))"></div>
+        <button id="lbPrev" onclick="lbGo(-1)" aria-label="Previous image" class="lb-btn absolute left-3 top-1/2 -translate-y-1/2">‹</button>
+        <button id="lbNext" onclick="lbGo(1)" aria-label="Next image" class="lb-btn absolute right-3 top-1/2 -translate-y-1/2">›</button>
+        <button id="lbReset" onclick="lbReset()" class="hidden absolute left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-white/15 text-white text-xs font-semibold" style="bottom:calc(1.25rem + env(safe-area-inset-bottom))">Reset to fit</button>
+    </div>
+
+    <!-- OPTIONS BOTTOM SHEET -->
+    <div id="optionsSheet" class="sheet-root fixed inset-0 z-40" aria-hidden="true">
+        <div onclick="closeOptions()" class="sheet-backdrop absolute inset-0 bg-black/40 dark:bg-black/65 backdrop-blur-sm"></div>
+        <div id="optPanel" role="dialog" aria-modal="true" aria-label="Options" class="sheet-panel absolute inset-x-0 bottom-0 mx-auto w-full sm:max-w-md bg-apple-bgLight dark:bg-apple-cardDark rounded-t-[28px] shadow-2xl border border-black/[0.06] dark:border-white/[0.1]" style="padding-bottom:calc(1rem + env(safe-area-inset-bottom))">
+            <div id="optHandle" class="pt-2.5 pb-1 cursor-grab" style="touch-action:none">
+                <div class="w-10 h-1 rounded-full bg-black/20 dark:bg-white/25 mx-auto mb-3"></div>
+                <h3 class="px-5 text-2xl font-bold tracking-tight">Options</h3>
+            </div>
+            <div class="px-4 pt-3 space-y-2">
+                <button id="optFirst" class="opt-row" onclick="closeOptions(); exportAllNotes()">
+                    <span class="opt-ico bg-blue-500/10 text-blue-600 dark:text-blue-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
+                    Export all <span class="opt-sub">JSON backup</span>
+                </button>
+                <button class="opt-row" onclick="triggerImport(); closeOptions()">
+                    <span class="opt-ico bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></span>
+                    Import <span class="opt-sub">JSON file</span>
+                </button>
+                <div class="opt-row">
+                    <span class="opt-ico bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></span>
+                    Appearance
+                    <div class="seg" role="group" aria-label="Appearance"><button data-theme-btn="light" onclick="setTheme('light')">Light</button><button data-theme-btn="dark" onclick="setTheme('dark')">Dark</button></div>
+                </div>
+                <div class="opt-row">
+                    <span class="opt-ico bg-pink-500/10 text-pink-600 dark:text-pink-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></span>
+                    Image quality
+                    <div class="seg" role="group" aria-label="Image quality"><button data-q-btn="compressed" onclick="setImageQuality('compressed')">Compressed</button><button data-q-btn="original" onclick="setImageQuality('original')">Original</button></div>
+                </div>
+                <p class="px-2 text-[11px] text-apple-subLight dark:text-apple-subDark">Applies to newly attached images. You can override it per image while editing a note.</p>
+                <button class="opt-row" onclick="closeOptions(); afterClose(openCategoryModal)">
+                    <span class="opt-ico bg-amber-500/10 text-amber-600 dark:text-amber-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg></span>
+                    Manage categories
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORT: MERGE OR REPLACE -->
+    <div id="importModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4">
+        <div onclick="closeImportDialog()" class="absolute inset-0 bg-black/45 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-xs apple-glass bg-white/90 dark:bg-apple-cardDark/95 rounded-3xl shadow-2xl border border-black/10 dark:border-white/15 overflow-hidden z-10 text-center">
+            <div class="p-6">
+                <h4 class="text-base font-bold mb-1.5">Import backup</h4>
+                <p id="importMessage" class="text-xs text-apple-subLight dark:text-apple-subDark leading-relaxed"></p>
+            </div>
+            <div class="border-t border-black/[0.08] dark:border-white/[0.1]">
+                <button onclick="applyImport('merge')" class="w-full py-3.5 text-sm font-semibold text-apple-blue dark:text-apple-blueDark hover:bg-black/5 dark:hover:bg-white/5">Merge with existing</button>
+                <button onclick="applyImport('replace')" class="w-full py-3.5 text-sm font-semibold text-apple-red border-t border-black/[0.08] dark:border-white/[0.1] hover:bg-black/5 dark:hover:bg-white/5">Replace everything</button>
+                <button onclick="closeImportDialog()" class="w-full py-3.5 text-sm font-medium border-t border-black/[0.08] dark:border-white/[0.1] hover:bg-black/5 dark:hover:bg-white/5">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         APPLE PILL TOAST NOTIFICATION
+         ========================================== -->
+    <div id="toastContainer" class="fixed top-[calc(1rem+env(safe-area-inset-top))] inset-x-0 z-50 flex justify-center pointer-events-none px-4 transition-all duration-300 opacity-0 -translate-y-4">
+        <div class="apple-glass bg-black/85 dark:bg-white/90 text-white dark:text-black px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 text-xs font-semibold">
+            <span id="toastIcon" class="w-4 h-4 rounded-full bg-apple-green text-white flex items-center justify-center text-[10px]">✓</span>
+            <span id="toastMessage">Copied to clipboard</span>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        /* ==========================================
+           STATE & STORAGE KEYS
+           ========================================== */
+        const STORAGE_KEYS = {
+            NOTES: 'apple_vault_notes_v1',
+            CATEGORIES: 'apple_vault_categories_v1',
+            THEME: 'apple_vault_theme_v1',
+            COLORS: 'apple_vault_catcolors_v1',
+            QUALITY: 'apple_vault_imgquality_v1'
+        };
+
+        const DEFAULT_CATEGORIES = ['All', 'Prompts', 'Links', 'Important Info'];
+
+        let appState = {
+            notes: [],
+            categories: [...DEFAULT_CATEGORIES],
+            activeCategory: 'All',
+            searchQuery: '',
+            editorImages: [],
+            activeReaderNoteId: null,
+            imageQuality: 'compressed',
+            categoryColors: {}
+        };
+        const $ = id => document.getElementById(id);
+
+        /* ==========================================
+           DEFAULT SAMPLE NOTES (First Launch)
+           ========================================== */
+        const SAMPLE_NOTES = [
+            {
+                id: 'note-sample-1',
+                title: 'UI/UX Apple Design Critic Prompt',
+                category: 'Prompts',
+                content: `Act as a Senior Human Interface Designer at Apple. Review my feature specification and provide actionable feedback focusing on:\n\n1. Visual hierarchy & generous negative space\n2. Tactile spring animations & micro-interactions\n3. Clarity over complexity (removing friction)\n4. Typography scale & high-contrast legibility\n\nOutput your response as a structured checklist with before/after CSS & layout recommendations.`,
+                images: [],
+                updatedAt: Date.now() - 3600000 * 5
+            },
+            {
+                id: 'note-sample-2',
+                title: 'Essential Design & AI Reference Links',
+                category: 'Links',
+                content: `Curated daily bookmarks and documentation:\n\n• Apple Human Interface Guidelines: https://developer.apple.com/design/human-interface-guidelines/\n• Tailwind CSS v3 Documentation: https://tailwindcss.com/docs\n• Lucide Minimal Icons: https://lucide.dev/icons`,
+                images: [],
+                updatedAt: Date.now() - 3600000 * 18
+            },
+            {
+                id: 'note-sample-3',
+                title: 'Production Deployment & Backup Checklist',
+                category: 'Important Info',
+                content: `Before pushing mobile web updates live:\n• Verify viewport meta prevents unwanted pinch-zoom\n• Test both Light (#F5F5F7) and Dark (#000000) themes\n• Export a JSON snapshot of Vault notes using the top-right Export button for safekeeping.`,
+                images: [],
+                updatedAt: Date.now() - 3600000 * 42
+            }
+        ];
+
+        /* ==========================================
+           INITIALIZATION
+           ========================================== */
+        async function initApp() {
+            loadTheme();
+            initHistory();
+            await loadDataFromStorage();
+            renderCategoryPills();
+            renderNotesGrid();
+        }
+
+        // Notes live in IndexedDB (large "Original" images exceed localStorage limits); legacy localStorage data is migrated.
+        const idb = {
+            db: null,
+            open() { return new Promise((res, rej) => { if (this.db) return res(this.db); const r = indexedDB.open('vault_db', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => { this.db = r.result; res(this.db); }; r.onerror = () => rej(r.error); }); },
+            async get(k) { const db = await this.open(); return new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+            async set(k, v) { const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(true); t.onerror = t.onabort = () => rej(t.error); }); }
+        };
+
+        async function loadDataFromStorage() {
+            try {
+                const storedCategories = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+                if (storedCategories) {
+                    const merged = [...DEFAULT_CATEGORIES];
+                    JSON.parse(storedCategories).forEach(c => { if (!merged.includes(c)) merged.push(c); });
+                    appState.categories = merged;
+                } else {
+                    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(appState.categories));
+                }
+                appState.categoryColors = JSON.parse(localStorage.getItem(STORAGE_KEYS.COLORS) || '{}') || {};
+                appState.imageQuality = localStorage.getItem(STORAGE_KEYS.QUALITY) === 'original' ? 'original' : 'compressed';
+            } catch (err) { console.error('Settings load error:', err); }
+
+            try {
+                const stored = await idb.get(STORAGE_KEYS.NOTES);
+                if (Array.isArray(stored)) { appState.notes = stored; return; }
+                const legacy = localStorage.getItem(STORAGE_KEYS.NOTES);
+                appState.notes = legacy ? JSON.parse(legacy) : SAMPLE_NOTES;
+                await saveNotesToStorage();
+            } catch (err) {
+                console.error('Storage initialization error:', err);
+                try { appState.notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTES)) || SAMPLE_NOTES; } catch (e) { appState.notes = SAMPLE_NOTES; }
+            }
+        }
+
+        async function saveNotesToStorage() {
+            try {
+                await idb.set(STORAGE_KEYS.NOTES, appState.notes);
+                return true;
+            } catch (err) {
+                console.error('Save failed:', err);
+                showToast('Could not save — device storage is full or unavailable', true);
+                return false;
+            }
+        }
+
+        function saveCategoriesToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(appState.categories));
+            } catch (err) {
+                console.error('Failed saving categories:', err);
+            }
+        }
+
+        /* ==========================================
+           THEME MANAGEMENT (Light / Dark)
+           ========================================== */
+        function loadTheme() {
+            const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
+            const htmlEl = document.documentElement;
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                htmlEl.classList.add('dark');
+                htmlEl.classList.remove('light');
+            } else {
+                htmlEl.classList.remove('dark');
+                htmlEl.classList.add('light');
+            }
+        }
+
+        function setTheme(mode) {
+            const htmlEl = document.documentElement;
+            htmlEl.classList.toggle('dark', mode === 'dark');
+            htmlEl.classList.toggle('light', mode !== 'dark');
+            try { localStorage.setItem(STORAGE_KEYS.THEME, mode); } catch (e) {}
+            renderOptionsState();
+        }
+
+        /* ==========================================
+           CATEGORY PILLS & MANAGEMENT
+           ========================================== */
+        const DEFAULT_COLORS = { 'Prompts': 'purple', 'Links': 'emerald', 'Important Info': 'amber' };
+        const PALETTE = ['sky', 'rose', 'teal', 'indigo', 'pink', 'lime', 'cyan', 'fuchsia', 'red'];
+
+        // Default categories keep their fixed colour; custom ones get the first unused palette colour, saved permanently.
+        function catKey(cat) {
+            if (!cat || cat === 'All') return null;
+            if (DEFAULT_COLORS[cat]) return DEFAULT_COLORS[cat];
+            const m = appState.categoryColors;
+            if (!m[cat] || !PALETTE.includes(m[cat])) {
+                const used = new Set(appState.categories.map(c => DEFAULT_COLORS[c] || m[c]).filter(Boolean));
+                m[cat] = PALETTE.find(c => !used.has(c)) || PALETTE[Object.keys(m).length % PALETTE.length];
+                try { localStorage.setItem(STORAGE_KEYS.COLORS, JSON.stringify(m)); } catch (e) {}
+            }
+            return m[cat];
+        }
+
+        function catDot(cat) {
+            const k = catKey(cat);
+            return k ? `<span class="w-2 h-2 rounded-full shrink-0 bg-${k}-500"></span>` : '';
+        }
+
+        function renderCategoryPills() {
+            const container = $('categoryPillsContainer');
+            if (!container) return;
+
+            let html = '';
+            appState.categories.forEach(cat => {
+                const isActive = appState.activeCategory === cat;
+                const count = cat === 'All' ? appState.notes.length : appState.notes.filter(n => n.category === cat).length;
+                const pillClasses = isActive
+                    ? 'bg-apple-textLight dark:bg-white text-white dark:text-black shadow-sm'
+                    : 'bg-black/[0.05] dark:bg-white/[0.08] text-apple-textLight/80 dark:text-apple-textDark/80 hover:bg-black/[0.09] dark:hover:bg-white/[0.14]';
+                html += `
+                    <button onclick="selectCategory('${escapeQuotes(cat)}')" class="spring-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${pillClasses}">
+                        ${catDot(cat)}<span>${escapeHtml(cat)}</span>
+                        <span class="text-[10px] opacity-65 font-normal">${count}</span>
+                    </button>`;
+            });
+
+            html += `
+                <button onclick="openCategoryModal()" title="Add or Manage Categories" class="spring-btn shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-apple-blue/10 dark:bg-apple-blueDark/20 text-apple-blue dark:text-apple-blueDark flex items-center gap-1">
+                    <span>+ Category</span>
+                </button>`;
+            container.innerHTML = html;
+        }
+
+        function selectCategory(category) {
+            appState.activeCategory = category;
+            renderCategoryPills();
+            renderNotesGrid();
+        }
+
+        function openCategoryModal() {
+            renderCategoryManagerList();
+            const modal = document.getElementById('categoryModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            pushLayer('category');
+        }
+
+        function hideCategoryModal() {
+            const modal = document.getElementById('categoryModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function renderCategoryManagerList() {
+            const listEl = document.getElementById('categoryManagerList');
+            let html = '';
+
+            appState.categories.forEach(cat => {
+                const isDefault = DEFAULT_CATEGORIES.includes(cat);
+                html += `
+                    <div class="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-apple-bgLight dark:bg-apple-elevatedDark">
+                        <div class="flex items-center gap-2">
+                            ${catDot(cat)}<span class="text-sm font-medium">${escapeHtml(cat)}</span>
+                            ${isDefault ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-black/[0.06] dark:bg-white/[0.1] text-apple-subLight dark:text-apple-subDark">Default</span>' : ''}
+                        </div>
+                        ${!isDefault ? `
+                            <button onclick="deleteCategory('${escapeQuotes(cat)}')" class="text-xs font-semibold text-apple-red hover:opacity-75">
+                                Remove
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        function createCategoryFromModal() {
+            const input = document.getElementById('newCategoryModalInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            if (appState.categories.some(c => c.toLowerCase() === name.toLowerCase())) {
+                showToast('Category already exists', true);
+                return;
+            }
+
+            appState.categories.push(name);
+            saveCategoriesToStorage();
+            input.value = '';
+            renderCategoryManagerList();
+            renderCategoryPills();
+            showToast(`Category "${name}" added`);
+        }
+
+        function deleteCategory(catName) {
+            if (DEFAULT_CATEGORIES.includes(catName)) return;
+            appState.categories = appState.categories.filter(c => c !== catName);
+            // Reassign notes in that deleted category to 'Important Info'
+            appState.notes.forEach(n => {
+                if (n.category === catName) n.category = 'Important Info';
+            });
+            if (appState.activeCategory === catName) {
+                appState.activeCategory = 'All';
+            }
+            saveCategoriesToStorage();
+            saveNotesToStorage();
+            renderCategoryManagerList();
+            renderCategoryPills();
+            renderNotesGrid();
+            showToast(`Category "${catName}" removed`);
+        }
+
+        /* ==========================================
+           SEARCH & FILTERING
+           ========================================== */
+        function handleSearch(query) {
+            appState.searchQuery = query.trim().toLowerCase();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (appState.searchQuery.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderNotesGrid();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            handleSearch('');
+        }
+
+        function getFilteredNotes() {
+            return appState.notes.filter(note => {
+                const matchesCategory = appState.activeCategory === 'All' || note.category === appState.activeCategory;
+                const matchesSearch = !appState.searchQuery || 
+                    (note.title && note.title.toLowerCase().includes(appState.searchQuery)) ||
+                    (note.content && note.content.toLowerCase().includes(appState.searchQuery)) ||
+                    (note.category && note.category.toLowerCase().includes(appState.searchQuery));
+                return matchesCategory && matchesSearch;
+            });
+        }
+
+        /* ==========================================
+           RENDER NOTES GRID
+           ========================================== */
+        function renderNotesGrid() {
+            const grid = document.getElementById('notesGrid');
+            const emptyState = document.getElementById('emptyState');
+            const counter = document.getElementById('notesCounter');
+
+            const filtered = getFilteredNotes();
+            counter.textContent = `${filtered.length} ${filtered.length === 1 ? 'note' : 'notes'} shown`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            let html = '';
+            filtered.forEach(note => {
+                const hasImages = Array.isArray(note.images) && note.images.length > 0;
+                const formattedDate = formatRelativeTime(note.updatedAt);
+                const badgeStyle = getCategoryBadgeStyle(note.category);
+
+                html += `
+                    <article 
+                        onclick="openReaderModal('${escapeQuotes(note.id)}')"
+                        class="spring-card cursor-pointer group bg-apple-cardLight dark:bg-apple-cardDark rounded-3xl p-5 border border-black/[0.06] dark:border-white/[0.09] shadow-sm hover:shadow-md flex flex-col justify-between gap-4"
+                    >
+                        <div>
+                            <!-- Top Meta Row: Category Badge + Quick Actions -->
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${badgeStyle}">
+                                    ${escapeHtml(note.category || 'Important Info')}
+                                </span>
+                                <span class="text-[11px] text-apple-subLight dark:text-apple-subDark">
+                                    ${formattedDate}
+                                </span>
+                            </div>
+
+                            <!-- Clear Note Heading -->
+                            <h2 class="text-lg font-bold tracking-tight leading-snug mb-2 group-hover:text-apple-blue dark:group-hover:text-apple-blueDark transition-colors">
+                                ${escapeHtml(note.title)}
+                            </h2>
+
+                            <!-- Readable Preview Body -->
+                            <div class="text-sm text-apple-textLight/80 dark:text-apple-textDark/80 leading-relaxed line-clamp-4 whitespace-pre-wrap break-words font-normal">
+                                ${formatNoteBodyHTML(note.content)}
+                            </div>
+
+                            <!-- Attached Image Thumbnail Strip -->
+                            ${hasImages ? `
+                                <div class="mt-3.5 flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+                                    ${note.images.slice(0, 3).map(imgUrl => `
+                                        <img src="${imgUrl}" alt="Attachment" class="h-16 w-24 object-cover rounded-xl border border-black/10 dark:border-white/10 shrink-0">
+                                    `).join('')}
+                                    ${note.images.length > 3 ? `
+                                        <div class="h-16 w-12 rounded-xl bg-black/[0.05] dark:bg-white/[0.08] flex items-center justify-center text-xs font-semibold text-apple-subLight dark:text-apple-subDark shrink-0">
+                                            +${note.images.length - 3}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Card Bottom Bar: Instant One-Tap Copy + Edit/Export/Delete -->
+                        <div class="pt-3 border-t border-black/[0.05] dark:border-white/[0.07] flex items-center justify-between gap-2" onclick="event.stopPropagation()">
+                            <!-- One-Tap Copy Button -->
+                            <button 
+                                onclick="copySingleNote('${escapeQuotes(note.id)}', this)" 
+                                class="spring-btn px-3.5 py-1.5 rounded-full bg-apple-blue/10 dark:bg-apple-blueDark/20 hover:bg-apple-blue hover:text-white dark:hover:bg-apple-blueDark text-apple-blue dark:text-apple-blueDark text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                            >
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Copy</span>
+                            </button>
+
+                            <!-- Individual Actions: Export Single, Edit, Delete -->
+                            <div class="flex items-center gap-1">
+                                <button 
+                                    onclick="exportSingleNote('${escapeQuotes(note.id)}')" 
+                                    title="Export this note"
+                                    class="spring-btn p-2 rounded-full hover:bg-black/[0.06] dark:hover:bg-white/[0.1] text-apple-subLight dark:text-apple-subDark hover:text-apple-textLight dark:hover:text-white"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                </button>
+                                <button 
+                                    onclick="openNoteEditor('${escapeQuotes(note.id)}')" 
+                                    title="Edit note"
+                                    class="spring-btn p-2 rounded-full hover:bg-black/[0.06] dark:hover:bg-white/[0.1] text-apple-subLight dark:text-apple-subDark hover:text-apple-textLight dark:hover:text-white"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                <button 
+                                    onclick="confirmDeleteNote('${escapeQuotes(note.id)}')" 
+                                    title="Delete note"
+                                    class="spring-btn p-2 rounded-full hover:bg-apple-red/10 text-apple-subLight dark:text-apple-subDark hover:text-apple-red"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function getCategoryBadgeStyle(category) {
+            const k = catKey(category);
+            if (!k) return 'bg-apple-blue/10 text-apple-blue dark:bg-apple-blueDark/20 dark:text-apple-blueDark';
+            return `bg-${k}-500/10 text-${k}-600 dark:bg-${k}-400/20 dark:text-${k}-300`;
+        }
+
+        /* ==========================================
+           READER MODAL (Clean Full-Screen View)
+           ========================================== */
+        function openReaderModal(noteId) {
+            const note = appState.notes.find(n => n.id === noteId);
+            if (!note) return;
+
+            appState.activeReaderNoteId = note.id;
+
+            const badgeEl = document.getElementById('readerCategoryBadge');
+            badgeEl.textContent = note.category || 'Important Info';
+            badgeEl.className = `px-3 py-1 rounded-full text-xs font-semibold ${getCategoryBadgeStyle(note.category)}`;
+
+            document.getElementById('readerTimestamp').textContent = formatRelativeTime(note.updatedAt);
+            document.getElementById('readerTitle').textContent = note.title;
+            document.getElementById('readerBody').innerHTML = formatNoteBodyHTML(note.content);
+
+            // Handle Images
+            const imgContainer = document.getElementById('readerImagesContainer');
+            const imgGrid = document.getElementById('readerImagesGrid');
+            if (Array.isArray(note.images) && note.images.length > 0) {
+                imgContainer.classList.remove('hidden');
+                imgGrid.innerHTML = note.images.map((src, i) => `
+                    <div class="relative group overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 bg-black/5">
+                        <img 
+                            src="${src}" 
+                            alt="Note Attachment" 
+                            onclick="openLightbox(${i})"
+                            class="w-full h-48 object-cover cursor-zoom-in group-hover:scale-[1.02] transition-transform"
+                        >
+                    </div>
+                `).join('');
+            } else {
+                imgContainer.classList.add('hidden');
+                imgGrid.innerHTML = '';
+            }
+
+            // Bind Reader Footer Actions
+            document.getElementById('readerCopyBtn').onclick = function() {
+                copySingleNote(note.id, this);
+            };
+            document.getElementById('readerExportSingleBtn').onclick = function() {
+                exportSingleNote(note.id);
+            };
+            document.getElementById('readerEditBtn').onclick = function() {
+                closeReaderModal();
+                afterClose(() => openNoteEditor(note.id));
+            };
+            document.getElementById('readerDeleteBtn').onclick = function() {
+                closeReaderModal();
+                afterClose(() => confirmDeleteNote(note.id));
+            };
+
+            const modal = document.getElementById('readerModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            pushLayer('reader');
+        }
+
+        function hideReaderModal() {
+            const modal = document.getElementById('readerModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            appState.activeReaderNoteId = null;
+        }
+
+
+
+        /* ==========================================
+           CREATE & EDIT NOTE MODAL
+           ========================================== */
+        function openNoteEditor(noteId = null) {
+            const modalTitle = document.getElementById('editorModalTitle');
+            const idInput = document.getElementById('editNoteId');
+            const titleInput = document.getElementById('noteTitleInput');
+            const contentInput = document.getElementById('noteContentInput');
+            const inlineCatBox = document.getElementById('inlineCategoryBox');
+            inlineCatBox.classList.add('hidden');
+
+            populateEditorCategorySelect();
+
+            if (noteId) {
+                const existing = appState.notes.find(n => n.id === noteId);
+                if (!existing) return;
+                modalTitle.textContent = 'Edit Note';
+                idInput.value = existing.id;
+                titleInput.value = existing.title;
+                document.getElementById('noteCategorySelect').value = existing.category || 'Prompts';
+                contentInput.value = existing.content;
+                appState.editorImages = (Array.isArray(existing.images) ? existing.images : []).map(src => ({ src, mode: 'saved', file: null, busy: false, rev: 0 }));
+            } else {
+                modalTitle.textContent = 'New Note';
+                idInput.value = '';
+                titleInput.value = '';
+                const defaultCat = appState.activeCategory !== 'All' ? appState.activeCategory : 'Prompts';
+                document.getElementById('noteCategorySelect').value = defaultCat;
+                contentInput.value = '';
+                appState.editorImages = [];
+            }
+
+            renderEditorImagePreviews();
+
+            const modal = document.getElementById('editorModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => titleInput.focus(), 100);
+            pushLayer('editor');
+        }
+
+        function hideNoteEditor() {
+            const modal = document.getElementById('editorModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function populateEditorCategorySelect(selectedCat = null) {
+            const select = document.getElementById('noteCategorySelect');
+            const assignableCategories = appState.categories.filter(c => c !== 'All');
+            select.innerHTML = assignableCategories.map(cat => `
+                <option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>
+            `).join('');
+            if (selectedCat) {
+                select.value = selectedCat;
+            }
+        }
+
+        function toggleInlineCategoryCreator() {
+            const box = document.getElementById('inlineCategoryBox');
+            box.classList.toggle('hidden');
+            if (!box.classList.contains('hidden')) {
+                document.getElementById('inlineNewCategoryInput').focus();
+            }
+        }
+
+        function addInlineCategory() {
+            const input = document.getElementById('inlineNewCategoryInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            if (!appState.categories.some(c => c.toLowerCase() === name.toLowerCase())) {
+                appState.categories.push(name);
+                saveCategoriesToStorage();
+                renderCategoryPills();
+            }
+            populateEditorCategorySelect(name);
+            input.value = '';
+            document.getElementById('inlineCategoryBox').classList.add('hidden');
+            showToast(`Category "${name}" selected`);
+        }
+
+        /* ==========================================
+           CLIENT-SIDE IMAGE COMPRESSION & ATTACHMENT
+           ========================================== */
+
+
+
+        function removeEditorImage(index) {
+            appState.editorImages.splice(index, 1);
+            renderEditorImagePreviews();
+        }
+
+
+        /* ==========================================
+           DELETE CONFIRMATION MODAL
+           ========================================== */
+        function confirmDeleteNote(noteId) {
+            const note = appState.notes.find(n => n.id === noteId);
+            if (!note) return;
+
+            document.getElementById('confirmTitle').textContent = 'Delete Note?';
+            document.getElementById('confirmMessage').textContent = `"${note.title}" will be permanently removed from your Vault.`;
+            
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            confirmBtn.onclick = function() {
+                appState.notes = appState.notes.filter(n => n.id !== noteId);
+                saveNotesToStorage();
+                renderCategoryPills();
+                renderNotesGrid();
+                closeConfirmModal();
+                showToast('Note deleted');
+            };
+
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            pushLayer('confirm');
+        }
+
+        function hideConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        /* ==========================================
+           ONE-TAP COPY (SINGLE & COPY ALL)
+           ========================================== */
+
+
+
+        /* ==========================================
+           IMPORT & EXPORT (GLOBAL & SINGLE ITEM)
+           ========================================== */
+
+        function exportSingleNote(noteId) {
+            const note = appState.notes.find(n => n.id === noteId);
+            if (!note) return;
+
+            const safeSlug = (note.title || 'note').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const payload = {
+                type: 'apple_vault_single_note',
+                exportedAt: new Date().toISOString(),
+                note: note
+            };
+            downloadJsonFile(payload, `vault-item-${safeSlug || 'note'}.json`).then(r => reportExport(r, `Exported "${note.title}"`));
+        }
+
+
+        function triggerImport() {
+            document.getElementById('importFileInput').click();
+        }
+
+
+
+        /* ==========================================
+           UTILITIES & FORMATTING
+           ========================================== */
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeQuotes(str) {
+            if (!str) return '';
+            return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        // Auto-detects URLs inside note text and makes them clickable links
+
+        function formatRelativeTime(timestamp) {
+            if (!timestamp) return '';
+            const diffSeconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (diffSeconds < 60) return 'Just now';
+            const diffMinutes = Math.floor(diffSeconds / 60);
+            if (diffMinutes < 60) return `${diffMinutes}m ago`;
+            const diffHours = Math.floor(diffMinutes / 60);
+            if (diffHours < 24) return `${diffHours}h ago`;
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return new Date(timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        }
+
+        let toastTimeout;
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toastContainer');
+            const msgEl = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+
+            msgEl.textContent = message;
+            if (isError) {
+                iconEl.textContent = '!';
+                iconEl.className = 'w-4 h-4 rounded-full bg-apple-red text-white flex items-center justify-center text-[10px] font-bold';
+            } else {
+                iconEl.textContent = '✓';
+                iconEl.className = 'w-4 h-4 rounded-full bg-apple-green text-white flex items-center justify-center text-[10px] font-bold';
+            }
+
+            container.classList.remove('opacity-0', '-translate-y-4');
+            container.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                container.classList.add('opacity-0', '-translate-y-4');
+                container.classList.remove('opacity-100', 'translate-y-0');
+            }, 2400);
+        }
+
+        /* ==========================================
+           BACK-BUTTON / HISTORY LAYERS
+           Every overlay pushes a history entry, so the Android back
+           button closes the top overlay first. At the home screen the
+           first back press shows a hint; a second press exits.
+           ========================================== */
+        const navStack = [];
+        let atBase = false, baseTimer = null;
+        function initHistory() {
+            try { history.replaceState({ depth: -1 }, ''); history.pushState({ depth: 0 }, ''); } catch (e) {}
+        }
+        function pushLayer(name) {
+            if (navStack[navStack.length - 1] === name) return;
+            if (atBase) { clearTimeout(baseTimer); atBase = false; history.pushState({ depth: 0 }, ''); }
+            navStack.push(name);
+            history.pushState({ depth: navStack.length }, '');
+        }
+        function popLayer(name) {
+            const i = navStack.lastIndexOf(name);
+            if (i === -1) return;
+            const isTop = i === navStack.length - 1;
+            navStack.splice(i, 1);
+            if (isTop) history.back();
+        }
+        function afterClose(fn) { setTimeout(fn, 160); }
+        const HIDE = {
+            options: () => hideOptions(), reader: () => hideReaderModal(), editor: () => hideNoteEditor(),
+            category: () => hideCategoryModal(), confirm: () => hideConfirmModal(), lightbox: () => hideLightbox(), import: () => hideImportDialog()
+        };
+        window.addEventListener('popstate', e => {
+            const d = e.state && typeof e.state.depth === 'number' ? e.state.depth : -1;
+            let closed = false;
+            while (navStack.length > Math.max(d, 0)) { const n = navStack.pop(); try { HIDE[n](); } catch (err) {} closed = true; }
+            if (d < 0) {
+                if (closed) { history.pushState({ depth: 0 }, ''); return; }
+                // Home screen: warn first. Next back press (no history left) exits natively.
+                atBase = true;
+                showToast('Press back again to exit');
+                clearTimeout(baseTimer);
+                baseTimer = setTimeout(() => { if (atBase && !navStack.length) { atBase = false; history.pushState({ depth: 0 }, ''); } }, 2200);
+            }
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && navStack.length) { e.preventDefault(); history.back(); return; }
+            if (navStack[navStack.length - 1] === 'lightbox') {
+                if (e.key === 'ArrowLeft') lbGo(-1);
+                if (e.key === 'ArrowRight') lbGo(1);
+            }
+        });
+        function closeReaderModal() { hideReaderModal(); popLayer('reader'); }
+        function closeNoteEditor() { hideNoteEditor(); popLayer('editor'); }
+        function closeCategoryModal() { hideCategoryModal(); popLayer('category'); }
+        function closeConfirmModal() { hideConfirmModal(); popLayer('confirm'); }
+        function closeOptions() { hideOptions(); popLayer('options'); }
+        function closeLightbox() { hideLightbox(); popLayer('lightbox'); }
+        function closeImportDialog() { hideImportDialog(); popLayer('import'); }
+
+        /* ==========================================
+           OPTIONS BOTTOM SHEET
+           ========================================== */
+        function openOptions() {
+            renderOptionsState();
+            const p = $('optPanel'); p.style.transform = '';
+            const r = $('optionsSheet');
+            r.classList.add('open'); r.setAttribute('aria-hidden', 'false');
+            pushLayer('options');
+            setTimeout(() => $('optFirst').focus({ preventScroll: true }), 60);
+        }
+        function hideOptions() {
+            const r = $('optionsSheet');
+            r.classList.remove('open', 'expanded'); r.setAttribute('aria-hidden', 'true');
+        }
+        function renderOptionsState() {
+            const dark = document.documentElement.classList.contains('dark');
+            document.querySelectorAll('[data-theme-btn]').forEach(b => b.classList.toggle('seg-on', (b.dataset.themeBtn === 'dark') === dark));
+            document.querySelectorAll('[data-q-btn]').forEach(b => b.classList.toggle('seg-on', b.dataset.qBtn === appState.imageQuality));
+        }
+        function setImageQuality(q) {
+            appState.imageQuality = q;
+            try { localStorage.setItem(STORAGE_KEYS.QUALITY, q); } catch (e) {}
+            renderOptionsState(); updateQualityHint();
+        }
+        function updateQualityHint() {
+            const el = $('editorQualityHint');
+            if (el) el.textContent = 'Default: ' + (appState.imageQuality === 'original' ? 'Original' : 'Compressed');
+        }
+        (function initSheetDrag() {
+            const h = $('optHandle'), p = $('optPanel');
+            let sy = null, dy = 0;
+            h.addEventListener('pointerdown', e => { sy = e.clientY; dy = 0; h.setPointerCapture(e.pointerId); p.style.transition = 'none'; });
+            h.addEventListener('pointermove', e => { if (sy === null) return; dy = e.clientY - sy; if (dy > 0) p.style.transform = `translateY(${dy}px)`; });
+            const end = () => {
+                if (sy === null) return; sy = null; p.style.transition = '';
+                if (dy > 90) { p.style.transform = 'translateY(100%)'; closeOptions(); }
+                else { p.style.transform = ''; if (dy < -40) $('optionsSheet').classList.add('expanded'); }
+            };
+            h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
+        })();
+
+        /* ==========================================
+           IMAGE VIEWER: pinch / wheel zoom, pan, double-tap, prev/next
+           ========================================== */
+        const LB = { imgs: [], i: 0, s: 1, x: 0, y: 0, ptrs: new Map(), pd: 1, moved: false, down: null, lastTap: 0 };
+        const lbClampN = (v, a, b) => Math.min(b, Math.max(a, v));
+        function lbApply(anim) {
+            const im = $('lightboxImage');
+            im.style.transition = anim ? 'transform .28s cubic-bezier(0.22,1,0.36,1)' : 'none';
+            im.style.transform = `translate(${LB.x}px, ${LB.y}px) scale(${LB.s})`;
+            $('lbReset').classList.toggle('hidden', LB.s <= 1.02);
+        }
+        function lbBounds() {
+            const st = $('lbStage'), im = $('lightboxImage');
+            if (LB.s <= 1) { LB.x = 0; LB.y = 0; return; }
+            const mx = Math.max(0, (im.clientWidth * LB.s - st.clientWidth) / 2), my = Math.max(0, (im.clientHeight * LB.s - st.clientHeight) / 2);
+            LB.x = lbClampN(LB.x, -mx, mx); LB.y = lbClampN(LB.y, -my, my);
+        }
+        function lbZoomAt(ns, cx, cy) {
+            ns = lbClampN(ns, 1, 6);
+            const r = ns / LB.s;
+            LB.x = cx - (cx - LB.x) * r; LB.y = cy - (cy - LB.y) * r; LB.s = ns;
+            lbBounds();
+        }
+        function lbReset() { LB.s = 1; LB.x = 0; LB.y = 0; lbApply(true); }
+        function lbShow() {
+            const im = $('lightboxImage');
+            im.src = LB.imgs[LB.i];
+            LB.s = 1; LB.x = 0; LB.y = 0; lbApply(false);
+            const multi = LB.imgs.length > 1;
+            $('lbPrev').style.display = multi ? '' : 'none'; $('lbNext').style.display = multi ? '' : 'none';
+            $('lbPrev').disabled = LB.i === 0; $('lbNext').disabled = LB.i === LB.imgs.length - 1;
+            $('lbCounter').textContent = multi ? `${LB.i + 1} / ${LB.imgs.length}` : '';
+            $('lbCounter').style.display = multi ? '' : 'none';
+        }
+        function lbGo(d) {
+            const ni = LB.i + d;
+            if (ni < 0 || ni >= LB.imgs.length) return;
+            LB.i = ni; lbShow();
+        }
+        function openLightbox(index) {
+            const note = appState.notes.find(n => n.id === appState.activeReaderNoteId);
+            if (!note || !Array.isArray(note.images) || !note.images.length) return;
+            LB.imgs = [...note.images]; LB.i = Math.min(Math.max(index || 0, 0), LB.imgs.length - 1);
+            LB.ptrs.clear();
+            $('lightboxModal').classList.remove('hidden');
+            lbShow();
+            pushLayer('lightbox');
+        }
+        function hideLightbox() {
+            $('lightboxModal').classList.add('hidden');
+            $('lightboxImage').removeAttribute('src');
+            LB.ptrs.clear();
+        }
+        (function initLightboxGestures() {
+            const st = $('lbStage');
+            const rel = (cx, cy) => { const r = st.getBoundingClientRect(); return [cx - r.left - r.width / 2, cy - r.top - r.height / 2]; };
+            st.addEventListener('pointerdown', e => {
+                st.setPointerCapture(e.pointerId);
+                LB.ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                if (LB.ptrs.size === 2) {
+                    const [a, b] = [...LB.ptrs.values()]; LB.pd = Math.hypot(a.x - b.x, a.y - b.y) || 1; LB.moved = true;
+                } else { LB.moved = false; LB.down = { x: e.clientX, y: e.clientY }; }
+            });
+            st.addEventListener('pointermove', e => {
+                const p = LB.ptrs.get(e.pointerId); if (!p) return;
+                const px = p.x, py = p.y; p.x = e.clientX; p.y = e.clientY;
+                if (LB.ptrs.size === 2) {
+                    const [a, b] = [...LB.ptrs.values()];
+                    const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+                    const [cx, cy] = rel((a.x + b.x) / 2, (a.y + b.y) / 2);
+                    lbZoomAt(LB.s * d / LB.pd, cx, cy); LB.pd = d; lbApply(false);
+                } else if (LB.s > 1) {
+                    LB.x += e.clientX - px; LB.y += e.clientY - py; lbBounds(); lbApply(false);
+                }
+                if (LB.down && Math.hypot(e.clientX - LB.down.x, e.clientY - LB.down.y) > 8) LB.moved = true;
+            });
+            const up = e => {
+                if (!LB.ptrs.has(e.pointerId)) return;
+                LB.ptrs.delete(e.pointerId);
+                if (LB.ptrs.size === 0 && !LB.moved && e.type === 'pointerup') {
+                    const now = Date.now();
+                    if (now - LB.lastTap < 320) {
+                        LB.lastTap = 0;
+                        if (LB.s > 1.05) { LB.s = 1; LB.x = 0; LB.y = 0; } else { const [cx, cy] = rel(e.clientX, e.clientY); lbZoomAt(2.5, cx, cy); }
+                        lbApply(true);
+                    } else LB.lastTap = now;
+                }
+            };
+            st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+            st.addEventListener('wheel', e => {
+                e.preventDefault();
+                const [cx, cy] = rel(e.clientX, e.clientY);
+                lbZoomAt(LB.s * Math.exp(-e.deltaY * 0.0015), cx, cy); lbApply(false);
+            }, { passive: false });
+        })();
+
+        /* ==========================================
+           IMAGE ATTACHMENTS (Compressed / Original)
+           ========================================== */
+        function readDataUrl(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error || new Error('read')); r.readAsDataURL(file); }); }
+        function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('decode')); i.src = src; }); }
+        async function processImage(file, mode) {
+            const orig = await readDataUrl(file);            // untouched source bytes, dimensions and format
+            if (mode === 'original') return orig;
+            const img = await loadImg(orig);
+            let w = img.naturalWidth, h = img.naturalHeight;
+            if (!w || !h) return orig;
+            const k = Math.min(1, 1280 / Math.max(w, h));
+            w = Math.round(w * k); h = Math.round(h * k);
+            const c = document.createElement('canvas'); c.width = w; c.height = h;
+            const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+            const out = c.toDataURL('image/jpeg', 0.8);
+            return out.length < orig.length ? out : orig;
+        }
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files || []).filter(f => f.type.startsWith('image/'));
+            event.target.value = '';
+            files.forEach(file => {
+                const it = { file, mode: appState.imageQuality, busy: true, src: '', rev: 0 };
+                appState.editorImages.push(it);
+                runProcess(it);
+            });
+            renderEditorImagePreviews();
+        }
+        async function runProcess(it) {
+            const rev = ++it.rev; it.busy = true;
+            try {
+                const src = await processImage(it.file, it.mode);
+                if (rev !== it.rev) return;
+                it.src = src;
+            } catch (err) {
+                if (rev !== it.rev) return;
+                appState.editorImages = appState.editorImages.filter(x => x !== it);
+                showToast('Could not read that image', true);
+            }
+            it.busy = false; renderEditorImagePreviews();
+        }
+        function toggleEditorImageQuality(idx) {
+            const it = appState.editorImages[idx];
+            if (!it || !it.file) return;
+            it.mode = it.mode === 'original' ? 'compressed' : 'original';
+            runProcess(it); renderEditorImagePreviews();
+        }
+        function renderEditorImagePreviews() {
+            updateQualityHint();
+            $('editorImagesPreview').innerHTML = appState.editorImages.map((it, idx) => {
+                const badge = it.mode === 'saved'
+                    ? `<span class="absolute bottom-1.5 left-1.5 px-2 py-1 rounded-full text-[10px] font-semibold bg-black/60 text-white">Saved</span>`
+                    : `<button type="button" onclick="toggleEditorImageQuality(${idx})" aria-label="Image quality ${it.mode}. Tap to switch" class="absolute bottom-1.5 left-1.5 px-2 py-1 rounded-full text-[10px] font-semibold text-white ${it.mode === 'original' ? 'bg-apple-blue' : 'bg-black/70'}">${it.busy ? '…' : (it.mode === 'original' ? 'Original' : 'Compressed')}</button>`;
+                return `
+                <div class="relative rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 h-20 bg-black/5">
+                    ${it.src ? `<img src="${it.src}" alt="Preview" class="w-full h-full object-cover">` : '<div class="w-full h-full animate-pulse bg-black/10 dark:bg-white/10"></div>'}
+                    <button type="button" onclick="removeEditorImage(${idx})" aria-label="Remove image" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center">✕</button>
+                    ${badge}
+                </div>`;
+            }).join('');
+        }
+        let savingNote = false;
+        async function saveNoteFromEditor() {
+            if (savingNote) return;
+            if (appState.editorImages.some(i => i.busy)) { showToast('Still processing images…', true); return; }
+            const id = $('editNoteId').value;
+            const title = $('noteTitleInput').value.trim();
+            const category = $('noteCategorySelect').value || 'Important Info';
+            const content = $('noteContentInput').value.trim();
+            const images = appState.editorImages.map(i => i.src);
+            if (!title && !content && images.length === 0) { showToast('Please add a heading or content', true); return; }
+
+            const finalTitle = title || 'Untitled Note';
+            const prev = appState.notes;
+            let msg;
+            if (id) {
+                const idx = prev.findIndex(n => n.id === id);
+                const next = [...prev];
+                if (idx !== -1) next[idx] = { ...prev[idx], title: finalTitle, category, content, images, updatedAt: Date.now() };
+                appState.notes = next; msg = 'Note updated';
+            } else {
+                appState.notes = [{ id: 'note-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7), title: finalTitle, category, content, images, updatedAt: Date.now() }, ...prev];
+                msg = 'Saved to Vault';
+            }
+            savingNote = true;
+            const ok = await saveNotesToStorage();
+            savingNote = false;
+            if (!ok) { appState.notes = prev; return; }   // stay in editor; error toast already shown
+            showToast(msg);
+            renderCategoryPills(); renderNotesGrid(); closeNoteEditor();
+        }
+
+        /* ==========================================
+           COPY NOTE / COPY INDIVIDUAL LINK
+           ========================================== */
+        async function copyTextToClipboard(text) {
+            try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+            document.body.appendChild(ta);
+            let ok = false;
+            try { ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); ok = document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+            return ok;
+        }
+        async function copySingleNote(noteId, btnEl = null) {
+            const note = appState.notes.find(n => n.id === noteId);
+            if (!note) return;
+            if (!(await copyTextToClipboard(note.content || note.title))) { showToast('Copy failed — clipboard unavailable', true); return; }
+            showToast(`Copied "${note.title}"`);
+            if (btnEl) {
+                const original = btnEl.innerHTML;
+                btnEl.innerHTML = `<span>✓ Copied</span>`;
+                setTimeout(() => { btnEl.innerHTML = original; }, 1400);
+            }
+        }
+        async function copyLinkBtn(ev, btn) {
+            ev.stopPropagation(); ev.preventDefault();
+            const ok = await copyTextToClipboard(decodeURIComponent(btn.dataset.url));
+            if (!ok) { showToast('Couldn’t copy link — clipboard unavailable', true); return; }
+            showToast('Link copied');
+            const lab = btn.querySelector('span');
+            if (lab) { lab.textContent = 'Copied'; setTimeout(() => { lab.textContent = 'Copy link'; }, 1200); }
+        }
+        function unescapeHtml(t) { return t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&'); }
+        function isValidUrl(u) {
+            try {
+                const x = new URL(u);
+                return /^https?:$/.test(x.protocol) && u.length < 2048 && (x.hostname === 'localhost' || /^[^.]+(\.[^.]+)+$/.test(x.hostname));
+            } catch (e) { return false; }
+        }
+        // Auto-links URLs; adds a compact "Copy link" button beside each valid one
+        function formatNoteBodyHTML(text) {
+            if (!text) return '<span class="italic opacity-50">No text content</span>';
+            return escapeHtml(text).replace(/https?:\/\/[^\s<]+/g, raw => {
+                const m = raw.match(/(?:&quot;|&#039;|&gt;|[.,;:!?)\]}])+$/);
+                const tail = m ? m[0] : '';
+                const esc = tail ? raw.slice(0, -tail.length) : raw;
+                const url = unescapeHtml(esc);
+                if (!isValidUrl(url)) return raw;
+                return `<a href="${esc}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-apple-blue dark:text-apple-blueDark underline underline-offset-2 font-medium break-all hover:opacity-80">${esc}</a>${tail}<button type="button" data-url="${encodeURIComponent(url)}" onclick="copyLinkBtn(event, this)" aria-label="Copy link" class="copy-link-btn inline-flex items-center gap-1 ml-1.5 align-middle px-2.5 py-1.5 rounded-full text-[11px] font-semibold leading-none bg-apple-blue/10 dark:bg-apple-blueDark/20 text-apple-blue dark:text-apple-blueDark whitespace-nowrap"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg><span>Copy link</span></button>`;
+            });
+        }
+
+        /* ==========================================
+           EXPORT / IMPORT (validated, truthful feedback)
+           ========================================== */
+        function reportExport(r, okMsg) {
+            if (r === true) showToast(okMsg);
+            else if (r === false) showToast('Export failed', true);
+        }
+        async function exportAllNotes() {
+            const payload = { type: 'apple_vault_full_backup', exportedAt: new Date().toISOString(), categories: appState.categories, categoryColors: appState.categoryColors, notes: appState.notes };
+            reportExport(await downloadJsonFile(payload, `vault-backup-${new Date().toISOString().slice(0, 10)}.json`), 'Backup exported');
+        }
+        // Returns true (saved/shared), false (failed) or 'cancel'
+        async function downloadJsonFile(dataObj, filename) {
+            try {
+                const blob = new Blob([JSON.stringify(dataObj, null, 2)], { type: 'application/json' });
+                const file = new File([blob], filename, { type: 'application/json' });
+                if (window.matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try { await navigator.share({ files: [file], title: filename }); return true; }
+                    catch (e) { if (e && e.name === 'AbortError') return 'cancel'; }
+                }
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = filename;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                return true;
+            } catch (e) { console.error(e); return false; }
+        }
+        function triggerImport() { $('importFileInput').click(); }
+        function normalizeNote(n) {
+            if (!n || typeof n !== 'object') return null;
+            const title = typeof n.title === 'string' ? n.title : '';
+            const content = typeof n.content === 'string' ? n.content : '';
+            const images = Array.isArray(n.images) ? n.images.filter(x => typeof x === 'string' && x.startsWith('data:image/')) : [];
+            if (!title && !content && !images.length) return null;
+            return {
+                id: typeof n.id === 'string' && n.id ? n.id : 'note-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+                title: title || 'Imported Note',
+                category: (typeof n.category === 'string' && n.category.trim() && n.category !== 'All') ? n.category.trim() : 'Important Info',
+                content, images, updatedAt: Number(n.updatedAt) || Date.now()
+            };
+        }
+        function parseBackup(p) {
+            if (!p || typeof p !== 'object') return null;
+            let list, single = false;
+            if (p.type === 'apple_vault_single_note' && p.note) { list = [p.note]; single = true; }
+            else if (Array.isArray(p.notes)) list = p.notes;
+            else if (p.title || p.content) { list = [p]; single = true; }
+            else return null;
+            const notes = list.map(normalizeNote).filter(Boolean);
+            if (list.length && !notes.length) return null;
+            const cats = [];
+            (Array.isArray(p.categories) ? p.categories : []).concat(notes.map(n => n.category)).forEach(c => {
+                if (typeof c === 'string' && c.trim() && c !== 'All' && !cats.includes(c)) cats.push(c);
+            });
+            return { notes, categories: cats, colors: (p.categoryColors && typeof p.categoryColors === 'object') ? p.categoryColors : {}, single };
+        }
+        let pendingImport = null;
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            event.target.value = '';
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onerror = () => showToast('Could not read that file', true);
+            reader.onload = e => {
+                let parsed;
+                try { parsed = parseBackup(JSON.parse(e.target.result)); } catch (err) { showToast('Invalid JSON file', true); return; }
+                if (!parsed) { showToast('Not a valid Vault backup', true); return; }
+                pendingImport = parsed;
+                if (parsed.single) { applyImport('merge'); return; }
+                $('importMessage').textContent = `Found ${parsed.notes.length} ${parsed.notes.length === 1 ? 'note' : 'notes'} and ${parsed.categories.length} categories. Merge keeps your current notes; Replace deletes them first.`;
+                const m = $('importModal'); m.classList.remove('hidden'); m.classList.add('flex');
+                pushLayer('import');
+            };
+            reader.readAsText(file);
+        }
+        function hideImportDialog() { const m = $('importModal'); m.classList.add('hidden'); m.classList.remove('flex'); }
+        async function applyImport(mode) {
+            const p = pendingImport; if (!p) return;
+            pendingImport = null;
+            closeImportDialog();
+            const snap = { notes: appState.notes, cats: [...appState.categories], colors: { ...appState.categoryColors }, active: appState.activeCategory };
+            if (mode === 'replace') {
+                appState.notes = p.notes; appState.categories = [...DEFAULT_CATEGORIES]; appState.categoryColors = {};
+            } else {
+                const next = [...appState.notes];
+                p.notes.forEach(n => { const i = next.findIndex(x => x.id === n.id); if (i > -1) next[i] = n; else next.unshift(n); });
+                appState.notes = next;
+            }
+            p.categories.forEach(c => {
+                if (!appState.categories.includes(c)) {
+                    appState.categories.push(c);
+                    if (!DEFAULT_COLORS[c] && PALETTE.includes(p.colors[c])) appState.categoryColors[c] = p.colors[c];
+                }
+            });
+            if (!appState.categories.includes(appState.activeCategory)) appState.activeCategory = 'All';
+            const ok = await saveNotesToStorage();
+            if (!ok) {
+                appState.notes = snap.notes; appState.categories = snap.cats; appState.categoryColors = snap.colors; appState.activeCategory = snap.active;
+                renderCategoryPills(); renderNotesGrid(); return;
+            }
+            saveCategoriesToStorage();
+            try { localStorage.setItem(STORAGE_KEYS.COLORS, JSON.stringify(appState.categoryColors)); } catch (e) {}
+            renderCategoryPills(); renderNotesGrid();
+            showToast(`Imported ${p.notes.length} ${p.notes.length === 1 ? 'note' : 'notes'}`);
+        }
+
+        // Launch App on window load
+        window.onload = initApp;
+    </script>
+</body>
+</html>

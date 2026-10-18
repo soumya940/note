@@ -1,0 +1,16 @@
+{
+  "name": "vault-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android wrapper for Vault \u2014 Notes & Prompts",
+  "scripts": {
+    "build": "echo 'Static web app; GitHub Actions builds Android APK'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
